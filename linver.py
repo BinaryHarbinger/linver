@@ -1,113 +1,102 @@
 #!/usr/bin/python3
-
 """
-linver 1.0.0 - made by @techguy16
+Forked from linver 1.0.0 - made by @techguy16 
 Probably the best recreation of Winver for Linux
-
-Yes it is very incomplete, due to not having a banner for every distro,
-but hey - it works.
 """
 
-from tkinter import *
-from tkinter import ttk
+import sys
 import os
-import distro
 import socket
+import distro
 
+from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QPushButton
+from PyQt6.QtGui import QPixmap, QFont
+
+# Sistem bilgilerini dosyalardan alıyoruz.
 os.system('uname -r > version.txt')
-version_file=open('version.txt')
-version = "Kernel build " + version_file.read()
-version_file.close()
+with open('version.txt') as version_file:
+    version = "Kernel build " + version_file.read().strip()
 
 os.system('echo $USER > username.txt')
-usern=open('username.txt')
-username = usern.read()
-usern.close()
+with open('username.txt') as user_file:
+    username = user_file.read().strip()
 
 hostname = socket.gethostname()
-
 distrov = distro.name()
 titlebartext = "About " + distrov
 distrover = distro.version()
 distrocode = distro.codename()
 distroversion = "Version " + distrover + " (" + distrocode + ")"
 
-root = Tk()
-root.title(titlebartext)
-root.geometry("450x420")
-root.resizable(False,False)
-
-"""
-This section only changes the distro name to add the company (if applicable).
-Not all distros have a company or organisation supporting them, so linver will
-just display the distro name.
-"""
+# Distro isimlerine göre düzenleme
 if distrov == 'Pop!_OS':
     distrov = 'System76 Pop!_OS'
-if distrov == 'Ubuntu':
+elif distrov == 'Ubuntu':
     distrov = 'Canonical Ubuntu'
-if distrov == 'Kali GNU/Linux':
+elif distrov == 'Kali GNU/Linux':
     distrov = 'Offensive Security Kali Linux'
-if distrov == 'openSUSE':
+elif distrov == 'openSUSE':
     distrov = 'SUSE openSUSE'
 
-"""
-The code that closes the window lives here.
-"""
-def close():
-    root.destroy()
+# Uygulama ve ana pencere
+app = QApplication(sys.argv)
+window = QWidget()
+window.setWindowTitle(titlebartext)
+window.setFixedSize(450, 420)
 
-"""
-This section chooses the correct photo for the currently running Linux distro
-"""
+# Resim seçimi: distrov'ya göre uygun resmi yüklüyoruz.
 if distrov == 'System76 Pop!_OS':
-    path = PhotoImage(file='assets/PopOS.png')
+    pixmap = QPixmap('assets/PopOS.png')
 elif distrov == 'Canonical Ubuntu':
-    path = PhotoImage(file='assets/Ubuntu.png')
+    pixmap = QPixmap('assets/Ubuntu.png')
 elif distrov == 'Linux Mint':
-    path = PhotoImage(file='assets/LinuxMint.png')
+    pixmap = QPixmap('assets/LinuxMint.png')
 elif distrov == 'Manjaro':
-    path = PhotoImage(file='assets/Manjaro.png')
+    pixmap = QPixmap('assets/Manjaro.png')
 elif distrov == 'Arch Linux':
-    path = PhotoImage(file='assets/ArchLinux.png')
+    pixmap = QPixmap('assets/ArchLinux.png')
 else:
-    path = PhotoImage(file="assets/Linux.png")
+    pixmap = QPixmap("assets/Linux.png")
 
-"""
-I guess this is the code that actually produces the window.
-"""
-label_image = Label(root, image=path,width=430, height=90)
-label_image.image = path
-label_image.place(x=10, y=10)
-distrolabel = Label(root, text=distrov)
-distrolabel.place(x=20, y=115)
-distrover = Label(root, text=distroversion)
-distrover.place(x=20, y=135)
-kernelver = Label(root, text=version)
-kernelver.place(x=20, y=155)
-licensetext = Label(root, text="The Linux kernel is protected under the GNU General Public\n\
-Licence in the United States and other countries/regions.", justify=LEFT)
-licensetext.place(x=20, y=200)
-tolicense = Label(root, text="This product is registered to:", justify=LEFT)
-tolicense.place(x=20, y=260)
-usernametext = Label(root, text=username, justify=LEFT)
-usernametext.place(x=50, y=280)
+# Resim için etiket oluşturma
+label_image = QLabel(window)
+label_image.setPixmap(pixmap.scaled(430, 90))
+label_image.setGeometry(10, 10, 430, 90)
 
-hostnametext = Label(root, text=hostname, justify=LEFT)
-hostnametext.place(x=50, y=300)
-okbutton = Button(root, text='OK', command=close, width=8)
-okbutton.place(x=345, y=377)
+# Diğer etiketler ve konumlandırmaları
+distrolabel = QLabel(distrov, window)
+distrolabel.setGeometry(20, 115, 400, 20)
+distrolabel.setFont(QFont("Arial", 10))
 
-# For compatibility. That's it.
-root.mainloop()
+distrover_label = QLabel(distroversion, window)
+distrover_label.setGeometry(20, 135, 400, 20)
+distrover_label.setFont(QFont("Arial", 10))
 
-"""
-If you made it this far, take a breather. You're about to be hit with a congrats from me!
+kernelver_label = QLabel(version, window)
+kernelver_label.setGeometry(20, 155, 400, 20)
+kernelver_label.setFont(QFont("Arial", 10))
 
-Congrats for trying out my project, and even better, looking at the code!
+licensetext = QLabel("The Linux kernel is protected under the GNU General Public\nLicence in the United States and other countries/regions.", window)
+licensetext.setGeometry(20, 200, 410, 40)
+licensetext.setWordWrap(True)
+licensetext.setFont(QFont("Arial", 9))
 
-@techguy16
-https://github.com/techguy16
-https://youtube.com/@techguy16
+tolicense = QLabel("This product is registered to:", window)
+tolicense.setGeometry(20, 260, 400, 20)
+tolicense.setFont(QFont("Arial", 10))
 
-"""
+usernametext = QLabel(username, window)
+usernametext.setGeometry(50, 280, 400, 20)
+usernametext.setFont(QFont("Arial", 10))
+
+hostnametext = QLabel(hostname, window)
+hostnametext.setGeometry(50, 300, 400, 20)
+hostnametext.setFont(QFont("Arial", 10))
+
+# Kapatma düğmesi
+okbutton = QPushButton('OK', window)
+okbutton.setGeometry(345, 377, 80, 30)
+okbutton.clicked.connect(window.close)
+
+window.show()
+sys.exit(app.exec())
